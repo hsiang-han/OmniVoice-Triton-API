@@ -10,6 +10,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir --break-system-packages --no-deps \
     omnivoice-triton omnivoice && \
     pip install --no-cache-dir --break-system-packages \
+    torchaudio \
     triton sageattention transformers accelerate huggingface-hub \
     soundfile numpy sentencepiece \
     fastapi uvicorn[standard] python-multipart
