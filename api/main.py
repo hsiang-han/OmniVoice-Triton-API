@@ -218,10 +218,30 @@ def _format_audio_response(audio: np.ndarray, sr: int, fmt: str) -> Response:
     return Response(content=_to_wav(audio, sr), media_type="audio/wav")
 
 
+VALID_INSTRUCT_KEYWORDS_EN = {
+    "american accent", "australian accent", "british accent", "canadian accent",
+    "child", "chinese accent", "elderly", "female", "high pitch", "indian accent",
+    "japanese accent", "korean accent", "low pitch", "male", "middle-aged",
+    "moderate pitch", "portuguese accent", "russian accent", "teenager",
+    "very high pitch", "very low pitch", "whisper", "young adult",
+}
+
+
 def _resolve_voice(voice: str) -> Optional[str]:
     if voice in VOICE_PRESETS:
         return VOICE_PRESETS[voice]
-    return voice if voice and voice != "auto" else None
+    if not voice or voice == "auto":
+        return None
+    # Check if it looks like a valid instruct (contains known keywords)
+    voice_lower = voice.lower()
+    for keyword in VALID_INSTRUCT_KEYWORDS_EN:
+        if keyword in voice_lower:
+            return voice
+    # Chinese instruct check
+    if any(c in voice for c in "男女老少年儿童耳语"):
+        return voice
+    # Unknown voice name — fallback to default (no instruct)
+    return None
 
 
 def _to_pcm16(audio: np.ndarray) -> bytes:
