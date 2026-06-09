@@ -31,6 +31,13 @@ VOICE_PRESETS = {
     "male_zh": "male, chinese",
     "child": "child",
     "elderly": "elderly, female",
+    # OpenAI standard voice names → mapped to instruct descriptions
+    "alloy": "female, neutral tone",
+    "echo": "male, deep voice",
+    "fable": "male, warm storyteller",
+    "onyx": "male, deep authoritative",
+    "nova": "female, young energetic",
+    "shimmer": "female, soft gentle",
 }
 
 
