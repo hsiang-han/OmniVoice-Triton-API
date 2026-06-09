@@ -135,9 +135,7 @@ async def text_to_speech(req: SpeechRequest):
     audio = result["audio"]
     sr = result["sample_rate"]
 
-    if req.response_format == "pcm":
-        return Response(content=_to_pcm16(audio), media_type="audio/pcm")
-    return Response(content=_to_wav(audio, sr), media_type="audio/wav")
+    return _format_audio_response(audio, sr, req.response_format)
 
 
 @app.post("/v1/audio/speech/clone")
@@ -175,6 +173,48 @@ async def clone_speech(
 
     audio = result["audio"]
     sr = result["sample_rate"]
+    return _format_audio_response(audio, sr, "wav")
+
+
+def _format_audio_response(audio: np.ndarray, sr: int, fmt: str) -> Response:
+    if fmt == "pcm":
+        return Response(content=_to_pcm16(audio), media_type="audio/pcm")
+
+    if fmt in ("flac", "opus", "ogg"):
+        try:
+            import soundfile as sf
+            buf = io.BytesIO()
+            sf.write(buf, audio, sr, format=fmt.upper())
+            buf.seek(0)
+            media = {"flac": "audio/flac", "opus": "audio/ogg", "ogg": "audio/ogg"}
+            return Response(content=buf.read(), media_type=media.get(fmt, "audio/ogg"))
+        except Exception:
+            pass
+
+    if fmt == "mp3":
+        try:
+            import subprocess
+            wav_bytes = _to_wav(audio, sr)
+            result = subprocess.run(
+                ["ffmpeg", "-i", "pipe:0", "-f", "mp3", "-ab", "192k", "pipe:1"],
+                input=wav_bytes, capture_output=True, check=True,
+            )
+            return Response(content=result.stdout, media_type="audio/mpeg")
+        except Exception:
+            pass
+
+    if fmt == "aac":
+        try:
+            import subprocess
+            wav_bytes = _to_wav(audio, sr)
+            result = subprocess.run(
+                ["ffmpeg", "-i", "pipe:0", "-f", "adts", "-ab", "192k", "pipe:1"],
+                input=wav_bytes, capture_output=True, check=True,
+            )
+            return Response(content=result.stdout, media_type="audio/aac")
+        except Exception:
+            pass
+
     return Response(content=_to_wav(audio, sr), media_type="audio/wav")
 
 
