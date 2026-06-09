@@ -7,14 +7,12 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir --break-system-packages \
-    omnivoice-triton \
-    fastapi \
-    uvicorn[standard] \
-    python-multipart \
-    soundfile && \
-    pip install --no-cache-dir --break-system-packages --force-reinstall \
-    torchaudio --index-url https://download.pytorch.org/whl/cu132
+RUN pip install --no-cache-dir --break-system-packages --no-deps \
+    omnivoice-triton omnivoice && \
+    pip install --no-cache-dir --break-system-packages \
+    triton sageattention transformers accelerate huggingface-hub \
+    soundfile numpy sentencepiece \
+    fastapi uvicorn[standard] python-multipart
 
 COPY api/ ./api/
 COPY docker/scripts/entrypoint.sh .
