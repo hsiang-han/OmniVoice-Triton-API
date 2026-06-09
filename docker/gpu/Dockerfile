@@ -12,7 +12,9 @@ RUN pip install --no-cache-dir --break-system-packages \
     fastapi \
     uvicorn[standard] \
     python-multipart \
-    soundfile
+    soundfile && \
+    pip install --no-cache-dir --break-system-packages --force-reinstall \
+    torchaudio --index-url https://download.pytorch.org/whl/cu132
 
 COPY api/ ./api/
 COPY docker/scripts/entrypoint.sh .
