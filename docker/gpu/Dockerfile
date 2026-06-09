@@ -1,19 +1,33 @@
-FROM pytorch/pytorch:2.12.0-cuda13.2-cudnn9-devel
+FROM nvidia/cuda:12.8.1-devel-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+        software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3.12 python3.12-venv python3.12-dev \
         git sox libsox-dev ffmpeg curl && \
+    ln -sf /usr/bin/python3.12 /usr/bin/python3 && \
+    ln -sf /usr/bin/python3.12 /usr/bin/python && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir --break-system-packages --no-deps \
-    omnivoice-triton omnivoice && \
-    pip install --no-cache-dir --break-system-packages \
-    torchaudio \
-    triton sageattention transformers accelerate huggingface-hub \
-    soundfile numpy sentencepiece \
-    fastapi uvicorn[standard] python-multipart
+# Install PyTorch + torchaudio from cu128 index (both have cp312 wheels)
+RUN pip install --no-cache-dir \
+    torch torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+# Install omnivoice-triton and deps
+RUN pip install --no-cache-dir \
+    omnivoice-triton \
+    fastapi \
+    uvicorn[standard] \
+    python-multipart \
+    soundfile
 
 COPY api/ ./api/
 COPY docker/scripts/entrypoint.sh .
