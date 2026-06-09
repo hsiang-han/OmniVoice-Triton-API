@@ -1,11 +1,24 @@
-FROM pytorch/pytorch:2.9.1-cuda12.8-cudnn9-devel
+FROM nvidia/cuda:12.8.1-devel-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+        software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3.12 python3.12-venv python3.12-dev \
         git sox libsox-dev ffmpeg curl && \
+    ln -sf /usr/bin/python3.12 /usr/bin/python3 && \
+    ln -sf /usr/bin/python3.12 /usr/bin/python && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+RUN pip install --no-cache-dir \
+    torch torchaudio --index-url https://download.pytorch.org/whl/cu128
 
 RUN pip install --no-cache-dir \
     omnivoice-triton \
