@@ -21,8 +21,10 @@ SAMPLE_RATE = 24000
 _runner = None
 _model_lock = threading.Lock()
 
+DEFAULT_VOICE_INSTRUCT = os.getenv("DEFAULT_VOICE", "female, young adult")
+
 VOICE_PRESETS = {
-    "auto": None,
+    "auto": DEFAULT_VOICE_INSTRUCT,
     "female": "female",
     "male": "male",
     "female_en": "female, american accent",
