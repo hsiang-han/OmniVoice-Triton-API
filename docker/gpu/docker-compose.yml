@@ -1,0 +1,28 @@
+name: omnivoice-triton-api
+services:
+  omnivoice:
+    image: ghcr.io/hsiang-han/omnivoice-triton-api:latest
+    container_name: omnivoice-triton-api
+    build:
+      context: ../..
+      dockerfile: docker/gpu/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - /mnt/user/appdata/omnivoice-triton-api/models:/root/.cache/huggingface
+    environment:
+      - MODEL_ID=k2-fsa/OmniVoice
+      - RUNNER_MODE=hybrid
+      - NUM_STEPS=32
+      - DTYPE=fp16
+      - HF_ENDPOINT=https://huggingface.co
+      - PORT=8080
+    shm_size: "4gb"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
