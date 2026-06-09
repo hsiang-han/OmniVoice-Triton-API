@@ -3,12 +3,10 @@ import os
 import struct
 import tempfile
 import threading
-import time
 from contextlib import asynccontextmanager
 from typing import Optional
 
 import numpy as np
-import torch
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
@@ -41,7 +39,7 @@ async def lifespan(app: FastAPI):
     global _runner, SAMPLE_RATE
     from omnivoice_triton import create_runner
 
-    _runner = create_runner(RUNNER_MODE, device=DEVICE, dtype=DTYPE)
+    _runner = create_runner(RUNNER_MODE, device=DEVICE, model_id=MODEL_ID, dtype=DTYPE)
     _runner.load_model()
     SAMPLE_RATE = 24000
 
@@ -94,7 +92,7 @@ class SpeechRequest(BaseModel):
     voice: str = Field(default="auto", description="Preset name or free-form voice description")
     language: Optional[str] = Field(default=None, description="ISO language code (auto-detected if omitted)")
     response_format: str = "wav"
-    speed: float = 1.0
+    speed: float = Field(default=1.0, description="Accepted for OpenAI compatibility but not yet applied")
     num_step: int = Field(default=0, description="Diffusion steps (0 = use server default)")
     guidance_scale: float = Field(default=2.0)
 
