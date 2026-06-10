@@ -106,23 +106,25 @@ Or pass any free-form description as `voice` (e.g. "warm baritone, British accen
 | Variable | Default | Description |
 |----------|---------|-------------|
 | MODEL_ID | k2-fsa/OmniVoice | HuggingFace model ID |
-| RUNNER_MODE | hybrid | Inference mode: hybrid, triton, faster, base |
+| RUNNER_MODE | triton | Inference mode (see below) |
 | NUM_STEPS | 32 | Diffusion steps (16 for speed, 32 for quality) |
 | DTYPE | fp16 | Model precision |
 | DEVICE | cuda:0 | CUDA device |
 | PORT | 8080 | API server port |
 | HF_ENDPOINT | https://huggingface.co | HuggingFace mirror |
 
-## Performance
+## Runner Modes
 
-Benchmarks from omnivoice-triton (RTX 5090):
+| Mode | Speedup | VRAM | Status |
+|------|---------|------|--------|
+| base | 1.0x | ~2-3GB | Stable |
+| **triton** (default) | ~1.5x | ~3-4GB | Stable |
+| triton+sage | ~1.5-1.7x | ~3-4GB | Stable |
+| faster | ~2.3x | ~5-6GB | ⚠️ VRAM leak |
+| hybrid | ~3.4x | ~7GB+ | ⚠️ VRAM leak |
+| hybrid+sage | ~3.4x | ~7GB+ | ⚠️ VRAM leak |
 
-| Mode | Speedup | Typical Latency |
-|------|---------|-----------------|
-| base | 1.0x | ~500ms |
-| triton | ~1.5x | ~330ms |
-| faster (CUDA Graph) | ~2.3x | ~220ms |
-| **hybrid** (Triton + CUDA Graph) | **3.4x** | **~170ms** |
+> **Warning:** `hybrid` and `faster` modes have a known VRAM leak — memory grows with each request until OOM. See [omnivoice-triton#8](https://github.com/newgrit1004/omnivoice-triton/issues/8). We are tracking the fix. Use `triton` or `triton+sage` for production.
 
 ## Hardware Requirements
 

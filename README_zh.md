@@ -106,23 +106,25 @@ curl http://localhost:8080/v1/voices
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | MODEL_ID | k2-fsa/OmniVoice | HuggingFace 模型 ID |
-| RUNNER_MODE | hybrid | 推理模式：hybrid、triton、faster、base |
+| RUNNER_MODE | triton | 推理模式（见下表） |
 | NUM_STEPS | 32 | 扩散步数（16 更快，32 质量更好） |
 | DTYPE | fp16 | 模型精度 |
 | DEVICE | cuda:0 | CUDA 设备 |
 | PORT | 8080 | API 端口 |
 | HF_ENDPOINT | https://huggingface.co | HuggingFace 镜像地址 |
 
-## 性能
+## 推理模式
 
-omnivoice-triton 基准（RTX 5090）：
+| 模式 | 加速 | 显存 | 状态 |
+|------|------|------|------|
+| base | 1.0x | ~2-3GB | 稳定 |
+| **triton**（默认） | ~1.5x | ~3-4GB | 稳定 |
+| triton+sage | ~1.5-1.7x | ~3-4GB | 稳定 |
+| faster | ~2.3x | ~5-6GB | ⚠️ 显存泄漏 |
+| hybrid | ~3.4x | ~7GB+ | ⚠️ 显存泄漏 |
+| hybrid+sage | ~3.4x | ~7GB+ | ⚠️ 显存泄漏 |
 
-| 模式 | 加速 | 典型延迟 |
-|------|------|---------|
-| base | 1.0x | ~500ms |
-| triton | ~1.5x | ~330ms |
-| faster (CUDA Graph) | ~2.3x | ~220ms |
-| **hybrid** (Triton + CUDA Graph) | **3.4x** | **~170ms** |
+> **警告：** `hybrid` 和 `faster` 模式存在已知的显存泄漏问题——每次请求后显存持续增长直到 OOM。详见 [omnivoice-triton#8](https://github.com/newgrit1004/omnivoice-triton/issues/8)。我们正在跟踪修复。生产环境建议使用 `triton` 或 `triton+sage`。
 
 ## 硬件要求
 
