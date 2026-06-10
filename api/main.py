@@ -31,13 +31,13 @@ VOICE_PRESETS = {
     "male_zh": "male, chinese",
     "child": "child",
     "elderly": "elderly, female",
-    # OpenAI standard voice names → mapped to instruct descriptions
-    "alloy": "female, neutral tone",
-    "echo": "male, deep voice",
-    "fable": "male, warm storyteller",
-    "onyx": "male, deep authoritative",
-    "nova": "female, young energetic",
-    "shimmer": "female, soft gentle",
+    # OpenAI standard voice names → mapped to valid OmniVoice instruct items
+    "alloy": "female, young adult",
+    "echo": "male, low pitch",
+    "fable": "male, middle-aged",
+    "onyx": "male, very low pitch",
+    "nova": "female, teenager",
+    "shimmer": "female, high pitch",
 }
 
 
