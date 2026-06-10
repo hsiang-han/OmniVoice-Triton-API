@@ -12,7 +12,7 @@ services:
       - /mnt/user/appdata/omnivoice-triton-api/models:/root/.cache/huggingface
     environment:
       - MODEL_ID=k2-fsa/OmniVoice
-      - RUNNER_MODE=hybrid
+      - RUNNER_MODE=triton
       - NUM_STEPS=32
       - DTYPE=fp16
       - HF_ENDPOINT=https://huggingface.co

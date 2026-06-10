@@ -46,7 +46,17 @@ async def lifespan(app: FastAPI):
     global _runner, SAMPLE_RATE
     from omnivoice_triton import create_runner
 
-    _runner = create_runner(RUNNER_MODE, device=DEVICE, model_id=MODEL_ID, dtype=DTYPE)
+    mode = RUNNER_MODE
+    enable_sage = False
+    if mode.endswith("+sage"):
+        mode = mode.replace("+sage", "")
+        enable_sage = True
+
+    kwargs = {"device": DEVICE, "model_id": MODEL_ID, "dtype": DTYPE}
+    if enable_sage and mode in ("triton", "hybrid"):
+        kwargs["enable_sage_attention"] = True
+
+    _runner = create_runner(mode, **kwargs)
     _runner.load_model()
     SAMPLE_RATE = 24000
 

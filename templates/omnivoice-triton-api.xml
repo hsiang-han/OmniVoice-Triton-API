@@ -20,7 +20,7 @@
 
   <Config Name="Model Cache" Target="/root/.cache/huggingface" Default="/mnt/user/appdata/omnivoice-triton-api/models" Mode="rw" Description="Model download cache. First run downloads ~2GB. Persists across container recreates." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/omnivoice-triton-api/models</Config>
 
-  <Config Name="Runner Mode" Target="RUNNER_MODE" Default="hybrid" Mode="" Description="Inference mode: hybrid (fastest ~170ms, uses ~7GB VRAM), triton (fast, ~3-4GB VRAM, recommended if sharing GPU), faster (CUDA Graph only, ~5-6GB), base (slowest, ~2-3GB VRAM). WARNING: hybrid mode VRAM grows with different text lengths until stabilized." Type="Variable" Display="always" Required="false" Mask="false">hybrid</Config>
+  <Config Name="Runner Mode" Target="RUNNER_MODE" Default="triton" Mode="" Description="Inference mode: triton (default, fast, ~3-4GB VRAM, stable), triton+sage (triton + SageAttention), base (slowest, ~2-3GB). EXPERIMENTAL: hybrid (fastest ~170ms but has VRAM leak bug — memory grows until OOM, see github.com/newgrit1004/omnivoice-triton/issues/8), hybrid+sage, faster. We are tracking the fix." Type="Variable" Display="always" Required="false" Mask="false">triton</Config>
 
   <Config Name="Diffusion Steps" Target="NUM_STEPS" Default="32" Mode="" Description="Number of diffusion steps. 32 = best quality. 16 = faster with slightly lower quality." Type="Variable" Display="always" Required="false" Mask="false">32</Config>
 
